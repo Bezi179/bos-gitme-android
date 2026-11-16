@@ -1,0 +1,35 @@
+name: Build BOŞ GİTME APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'BOS-GITME-Android-Cloud-Build-v0.1.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip BOS-GITME-Android-Cloud-Build-v0.1.zip
+          cd BOS-GITME-Android-Cloud-Build
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Build APK
+        run: |
+          cd BOS-GITME-Android-Cloud-Build
+          flutter create --platforms=android --project-name=bos_gitme .
+          flutter pub get
+          flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOS-GITME-APK
+          path: BOS-GITME-Android-Cloud-Build/build/app/outputs/flutter-apk/app-release.apk
