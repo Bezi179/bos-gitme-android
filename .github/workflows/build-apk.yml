@@ -14,11 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download Premium ZIP
+        run: |
+          curl -L "https://raw.githubusercontent.com/Bezi179/bos-gitme-android/main/BOS-GITME-Premium-Android-v0.2.zip" -o premium.zip
+
       - name: Extract Premium ZIP
         run: |
           mkdir premium
-          unzip -o BOS-GITME-Premium-Android-v0.2.zip -d premium
-          cp -r premium/. .
+          unzip -o premium.zip -d premium
+          find premium -name pubspec.yaml
+
+      - name: Locate project
+        run: |
+          PROJECT=$(dirname "$(find premium -name pubspec.yaml | head -n 1)")
+          echo "PROJECT=$PROJECT" >> $GITHUB_ENV
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,16 +35,23 @@ jobs:
           channel: stable
 
       - name: Prepare Android
-        run: flutter create --platforms=android --project-name=bos_gitme .
+        run: |
+          cd "$PROJECT"
+          flutter create --platforms=android --project-name=bos_gitme .
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          cd "$PROJECT"
+          flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          cd "$PROJECT"
+          flutter analyze
+          flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: BOS-GITME-Premium-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: ${{ env.PROJECT }}/build/app/outputs/flutter-apk/app-release.apk
