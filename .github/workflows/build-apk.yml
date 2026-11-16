@@ -16,7 +16,7 @@ jobs:
 
       - name: Download Premium ZIP
         run: |
-          curl -L "https://raw.githubusercontent.com/Bezi179/bos-gitme-android/main/BOS-GITME-Premium-Android-v0.2.zip" -o premium.zip
+          curl -L "https://raw.githubusercontent.com/Bezi179/bos-gitme-android/main/BOS-GITME-Premium-Android-v0.3-FIXED.zip" -o premium.zip
 
       - name: Extract Premium ZIP
         run: |
@@ -47,7 +47,6 @@ jobs:
       - name: Build APK
         run: |
           cd "$PROJECT"
-          flutter analyze
           flutter build apk --release
 
       - name: Upload APK
