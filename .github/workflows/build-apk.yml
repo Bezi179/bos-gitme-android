@@ -1,35 +1,41 @@
-name: Build BOŞ GİTME APK
+name: Build BOS GITME Premium APK
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'BOS-GITME-Android-Cloud-Build-v0.1.zip'
-      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Extract project
+      - name: Extract Premium ZIP
         run: |
-          unzip BOS-GITME-Android-Cloud-Build-v0.1.zip
-          cd BOS-GITME-Android-Cloud-Build
+          mkdir premium
+          unzip -o BOS-GITME-Premium-Android-v0.2.zip -d premium
+          cp -r premium/. .
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Build APK
-        run: |
-          cd BOS-GITME-Android-Cloud-Build
-          flutter create --platforms=android --project-name=bos_gitme .
-          flutter pub get
-          flutter build apk --release
+      - name: Prepare Android
+        run: flutter create --platforms=android --project-name=bos_gitme .
 
-      - uses: actions/upload-artifact@v4
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: BOS-GITME-APK
-          path: BOS-GITME-Android-Cloud-Build/build/app/outputs/flutter-apk/app-release.apk
+          name: BOS-GITME-Premium-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
